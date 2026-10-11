@@ -34,11 +34,11 @@ def main():
     try:
         while True:
             print("- - - - - -")
-            print("REALMS")
-            print("1. Realms")
-            print("2. Settings")
-            print("0. Quit")
-            print('')
+            print(Fore.BLUE + "REALMS")
+            print(Fore.CYAN + "1. Realms")
+            print(Fore.YELLOW + "2. Settings")
+            print(Fore.RED + "0. Quit")
+            print(Style.RESET_ALL)
             choice = input(Style.BRIGHT + "Path: ")
             print(Style.RESET_ALL)
             if choice == '0':
@@ -48,15 +48,16 @@ def main():
             elif choice == '2':
                 Settings()
             elif choice == "000":
-                test_func()
+                print("")
     except KeyboardInterrupt:
         print(Style.RESET_ALL)
 
 def Realms():
-    print("1. Load Realm")
-    print("2. Create Realm")
-    print("3. View Realms Data")
-    print("0. Return")
+    print(Fore.LIGHTBLUE_EX + "1. Load Realm")
+    print(Fore.LIGHTGREEN_EX + "2. Create Realm")
+    print(Fore.LIGHTCYAN_EX + "3. View Realms Data")
+    print(Fore.LIGHTRED_EX + "0. Return")
+    print(Style.RESET_ALL)
     choice = input(Style.BRIGHT + "Realms input: ")
     print(Style.RESET_ALL)
     if choice == '0':
@@ -85,7 +86,7 @@ def RealmLoader():
                 print(f"{odNum}. {loaded_dict['Name']} | {time.ctime(os.path.getmtime(game_loc+'/'+game_save_path+'/'+fin), )} |")
                 #print(loaded_dict)
     except FileNotFoundError:
-        pass
+        print('No saves found.')
     print("\n1. Load world by name")
     #print("2. Load world by ID ") #Under work #Does not work for now
     print("0. Return")
@@ -117,6 +118,9 @@ def CreateRealm():
         "Player": {
             "Health": 100,
             "Max_Health": 100,
+            "Skills": {
+                SkillsDB['Basic Sword Attack'],
+                },
         },
     }
     print("1. Confirm Realms Creation")
@@ -147,6 +151,8 @@ def Settings():
         return
     elif choice == '1':
         pass
+    else:
+        Settings()
 
 ctrl_c_count = 0
     
@@ -158,16 +164,6 @@ def game_sys_menu():
     print(Style.RESET_ALL)
     if choice == '0':
         return
-    
-def test_func():
-    dicter = {
-        "Name": "SaveName",
-        "Player": {
-            "Health": 100,
-            "Max_Health": 100,
-        },
-    }
-    print(dicter['Player'])
 
 def game_loop(save_data_dict):
     print(Fore.MAGENTA + "\n\nWelcome to the Realms!")
@@ -186,7 +182,7 @@ def game_loop(save_data_dict):
         if choice == '0':
             game_sys_menu()
         elif choice == '1':
-            combat()
+            pass
         elif choice == '2':
             print(save_data_dict)
         elif choice == '3':
@@ -195,24 +191,54 @@ def game_loop(save_data_dict):
             global ctrl_c_count
             ctrl_c_count = 0
 
+SkillsDB = {
+    "Basic Sword Attack": {
+        "base_DMG": 2,        
+        },
+    "Basic fast run": {
+        "speed_Boost": 2,
+        },
+    "Lighting Strike": {
+        "base_DBG": 5,
+    }
+}
 
-def combat():
+
+def combat(Enemyi):
+    print("! --- Combat --- !")
+    print(f" Enemy: {Enemyi}")
+    print("--- Commands ---")
+    print('"run" Attempt to exit combat')
+    print(Style.RESET_ALL)
     while True:
         choice = input("ATCK: ")
-        print(f"\033[2A")
-        if choice == '1':
-            print("\nT")
-
+        #print(f"\033[2A")
+        if choice.lower() == 'run':
+            return
+        if choice.lower() == 'skills':
+            print()
 
 Enemies = {
-    "Common Thug": {
-        "Max_Health": 50,
-        "Health": 50
+    "Common": {
+        "Common Thug": {
+            "Max_Health": 50,
+            "Health": 50,
+            "Skills": [
+                SkillsDB['Basic Sword Attack'],
+                SkillsDB['Basic fast run'],
+            ]
+        },
+    },
+    "Uncommon": {
+        
+    },
+    "Rare": {
+        
     },
 }
 HC = {
     "Nothing": "",
-    "Enemy": Enemies['Common Thug']
+    "Enemy": Enemies,
 }
 
 mv_left = True
@@ -257,11 +283,16 @@ def chanc():
     rand_enemy = random.randint(1, len(Enemies))-1
     #print(rand)
     li = list(HC.keys())[rand]
-    enemy = HC.get(list(Enemies.keys())[rand_enemy])
+    enemy = Enemies.get(list(Enemies.keys())[rand_enemy])#HC.get(list(Enemies.keys())[rand_enemy])
     print("--- CHANCE ---")
-    print(f"{li}: {enemy}")
+    if li == 'Enemy':
+        print(f"{li}: {list(Enemies.keys())[rand_enemy]}")
+    else:
+        print(li)
     print("--- END ---")
     print(Style.RESET_ALL)
+    if li == 'Enemy':
+        combat(enemy)
 
 def handle_sigint_gml(sig, frame):
     global ctrl_c_count
