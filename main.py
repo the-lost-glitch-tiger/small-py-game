@@ -27,6 +27,23 @@ elif os.path.exists(game_loc+'/config.pkl'):
     with open(game_loc+'/config.pkl', 'rb') as f:
         loaded_dict = pickle.load(f)
 
+
+SkillsDB = {
+    "Basic Sword Attack": {
+        "Name": "Basic Sword Attack",
+        "base_DMG": 2,        
+        },
+    "Basic fast run": {
+        "Name": "Basic fast run",
+        "speed_Boost": 2,
+        },
+    "Lighting Strike": {
+        "Name": "Lighting Strike",
+        "base_DBG": 5,
+    }
+}
+
+
 def main():
     print(Style.RESET_ALL)
     print('\n------------')
@@ -70,7 +87,8 @@ def Realms():
         realms_data_viewer()
 
 def realms_data_viewer():
-    print(f"Savefolder: {os.path.abspath(game_save_path)}")
+    print(f"Save folder: {os.path.abspath(game_save_path)}\n")
+    Realms()
         
 def RealmLoader():
     print('')
@@ -87,9 +105,10 @@ def RealmLoader():
                 #print(loaded_dict)
     except FileNotFoundError:
         print('No saves found.')
-    print("\n1. Load world by name")
+    print(Fore.LIGHTCYAN_EX + "\n1. Load world by name")
     #print("2. Load world by ID ") #Under work #Does not work for now
-    print("0. Return")
+    print(Fore.RED + "0. Return")
+    print(Style.RESET_ALL)
     choice = input(Style.BRIGHT + "Choose: ")
     print(Style.RESET_ALL)
     if choice == '0':
@@ -111,18 +130,25 @@ def RealmLoader():
     
 
 def CreateRealm():
-    SaveName = input("Enter Realm Name (savename): ")
-    
+    SaveName = input(Style.BRIGHT + "Enter Realm Name (savename): ")
+    if len(SaveName) >= 2:
+        pass
+    else:
+        print(Style.RESET_ALL)
+        print("Too short!")
+        return
+    print(Style.RESET_ALL)
     RealmSaveF = {
         "Name": SaveName,
         "Player": {
             "Health": 100,
             "Max_Health": 100,
-            "Skills": {
-                SkillsDB['Basic Sword Attack'],
-                },
+            "Skills": [
+                SkillsDB["Basic Sword Attack"]
+                ],
         },
     }
+    #if os.path.exists()
     print("1. Confirm Realms Creation")
     print("2. Cancle")
     confirm = input(Style.BRIGHT + "Confirm (1 or 2): ")
@@ -133,6 +159,15 @@ def CreateRealm():
                 os.mkdir(game_loc+'/'+game_save_path)
             with open(game_loc+'/'+game_save_path+'/'+SaveName+'.pkl', 'wb') as f:
                 pickle.dump(RealmSaveF, f)
+        elif os.path.exists(game_loc+'/'+game_save_path+'/'+SaveName+'.pkl') == True:
+            print("Save exist.")
+            owq = input("Overwrite: (y/n)")
+            if owq == 'y':
+                print("Overwriteing Save")
+                with open(game_loc+'/'+game_save_path+'/'+SaveName+'.pkl', 'wb') as f:
+                    pickle.dump(RealmSaveF, f)
+            elif owq == 'n':
+                print("Did not create save.")
     elif confirm == '2':
         return
     else:
@@ -140,11 +175,11 @@ def CreateRealm():
         Realms()
 
 def Settings():
-    print('')
-    print("Settings")
-    print("1. ")
-    print("0. Return")
-    print('')
+    print(Style.RESET_ALL)
+    print(Fore.YELLOW + "Settings")
+    #print(Fore.CYAN + "1. ")
+    print(Fore.RED + "0. Return")
+    print(Style.RESET_ALL)
     choice = input(Style.BRIGHT + "Choose Setting: ")
     print(Style.RESET_ALL)
     if choice == '0':
@@ -159,13 +194,22 @@ ctrl_c_count = 0
 def game_sys_menu():
     print(Style.BRIGHT + "- - - - - - - - - - -")
     print(Style.RESET_ALL)
+    print("1. Quit")
+    print("2. Save")
     print("0. Return")
     choice = input(Style.BRIGHT + "Input: ")
     print(Style.RESET_ALL)
     if choice == '0':
         return
+    elif choice == '1':
+        Realms()
+    elif choice == '2':
+        pass
+        
 
 def game_loop(save_data_dict):
+    global PLYR_data
+    PLYR_data = save_data_dict['Player']
     print(Fore.MAGENTA + "\n\nWelcome to the Realms!")
     signal.signal(signal.SIGINT, handle_sigint_gml)
     while True:
@@ -184,42 +228,48 @@ def game_loop(save_data_dict):
         elif choice == '1':
             pass
         elif choice == '2':
-            print(save_data_dict)
+            print(save_data_dict['Player'])
         elif choice == '3':
             game_movement()
         else:
             global ctrl_c_count
             ctrl_c_count = 0
 
-SkillsDB = {
-    "Basic Sword Attack": {
-        "base_DMG": 2,        
-        },
-    "Basic fast run": {
-        "speed_Boost": 2,
-        },
-    "Lighting Strike": {
-        "base_DBG": 5,
-    }
-}
-
+def Player(updt_dict):
+    if updt_dict is None:
+        pass
+    else:
+        pass
+        
 
 def combat(Enemyi):
     print("! --- Combat --- !")
     print(f" Enemy: {Enemyi}")
     print("--- Commands ---")
     print('"run" Attempt to exit combat')
+    print('"skills" Show and use skills')
     print(Style.RESET_ALL)
     while True:
         choice = input("ATCK: ")
         #print(f"\033[2A")
         if choice.lower() == 'run':
-            return
+            ranRand = random.randint(1, 4)
+            PLYR_data['Health'] -= random.randint(1, 5)
+            print("Health: ",PLYR_data['Health'],"/",PLYR_data['Max_Health'])
+            print(Style.RESET_ALL)
+            if ranRand > 1:
+                return
+            else:
+                print("Failed to escape!")
         if choice.lower() == 'skills':
-            print()
+            print(PLYR_data['Skills'])
 
 Enemies = {
     "Common": {
+        "Small Slime": {
+            "Max_Health": 25,
+            "Health": 25,
+        },
         "Common Thug": {
             "Max_Health": 50,
             "Health": 50,
@@ -230,7 +280,10 @@ Enemies = {
         },
     },
     "Uncommon": {
-        
+        "Big Slime": {
+            "Max_Health": 50,
+            "Health": 50,
+        },
     },
     "Rare": {
         
@@ -280,13 +333,13 @@ def game_movement():
         #return
 def chanc():
     rand = random.randint(1, len(HC))-1
-    rand_enemy = random.randint(1, len(Enemies))-1
+    rand_enemy = random.randint(1, len(Enemies["Common"]))-1
     #print(rand)
     li = list(HC.keys())[rand]
-    enemy = Enemies.get(list(Enemies.keys())[rand_enemy])#HC.get(list(Enemies.keys())[rand_enemy])
+    enemy = Enemies["Common"].get(list(Enemies['Common'].keys())[rand_enemy])#HC.get(list(Enemies.keys())[rand_enemy])
     print("--- CHANCE ---")
     if li == 'Enemy':
-        print(f"{li}: {list(Enemies.keys())[rand_enemy]}")
+        print(f"{li}: {list(Enemies['Common'].keys())[rand_enemy]}")
     else:
         print(li)
     print("--- END ---")

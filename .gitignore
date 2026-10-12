@@ -1,3 +1,8 @@
 __pycache__/funcs.cpython-314.pyc
 sPyGame/config.pkl
 funcs.py
+.venv/
+build/
+dist/
+sPyGame/
+main.spec
